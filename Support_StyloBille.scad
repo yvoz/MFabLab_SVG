@@ -1,95 +1,121 @@
 
-$fn = 12;
-
-ep = 10; // epaisseur
-ez = 10; // epaisseur z
-epr = ep-3; // epaisseur cylindre
 
 rsty = 6; // rayon stylo
-rres = 3.55; // rayon resort
+rbig = 43/2;  // rayon cylindre de serrage 
 
-sps = 60; // espace vis support
-spc = 37; // espace colonnes
-dco = 22; // distance support / colonnes
-
-rv = 2.5 +0.1; // rayon vis
+rv = 2.5 + 0.1; // rayon vis
 rc = 3; // rayon colonnes
-
 rr = 6; // rayon roulement bille 
 rrz = 19; // roulement long
 
+
+
+supx = 80;
+supz = 20;
+
+epr = 4;
+eprr = 3; // épaisseur roulement
+epz = 3;
+
 include <Hexa.scad>;
+//use<Hexa.scad>;
 
-module sercol(ro){
-    difference(){
-        union(){
-            translate([0,0,0]) cylinder(r=ro+epr, h=ez, $fn=4*5);
-            // plot serrage
-            translate([-epr,0,0]) cube([epr*2,ro+epr+2,ez]);
-        }
-        translate([0,0,-1]) cylinder(r=ro, h=ez+2, $fn=4*5);
-        // fente
-        translate([-1,0,-1]) cube([2,ro+epr+rc+1,ez+2]);
-        // vis serrages
-        translate([-epr-epr/2, ro+epr-1.6, ez/2]) rotate([0,90,0]) cylinder(r=1.6, h=epr*3+2);
-        translate([epr, ro+epr-1.6, ez/2]) rotate([0,90,0]) rotate([0,0,30]) cylinder(r=m3r+0.4, h=epr, $fn=6);
-        translate([-epr*2, ro+epr-1.6, ez/2]) rotate([0,90,0]) rotate([0,0,30]) cylinder(r=m3r+0.4, h=epr, $fn=6);
-    }
-}
 
-module colonnes(){
-    difference(){
-        cube([ep+sps+ep,ep,ez]);
-        translate([ep,-1,ez/2]) rotate([-90,0,0]) cylinder(r=rv, h=ep+2);
-        translate([ep+sps,-1,ez/2]) rotate([-90,0,0]) cylinder(r=rv, h=ep+2);
-    }
-    translate([ep+sps/2-spc/2-ep/2, 0,0]) cube([ep,dco-rc-3,ez]);
+module rouloum(){
 	difference(){
-		translate([ep+sps/2-spc/2, dco,0]) sercol(rr+0.2);
-		translate([ep-1.7,ep+1,ez/2]) rotate([-90,0,0]) cylinder(r=rv+1, h=rr*4);
-	}
-    translate([ep+sps/2+spc/2-ep/2, 0,0]) cube([ep,dco-rc-3,ez]);
-	difference(){
-		translate([ep+sps/2+spc/2, dco,0]) sercol(rr+0.2);
-		translate([ep+sps+1.7,ep+1,ez/2]) rotate([-90,0,0]) cylinder(r=rv+1, h=rr*4);
-	}
-}
- 
-module stylo(){
-	jspa = 0.0;
-	//
-    translate([ep+sps/2-spc/2-jspa, dco,0]) rotate([0,0,90]) sercol(rc+0.1);
-    translate([ep+sps/2+spc/2+jspa, dco,0]) rotate([0,0,-90]) sercol(rc+0.1);
-    //
-    difference(){
-        union(){
-            translate([ep+sps/2-spc/2+rc, dco-ep/2,0]) cube([spc-rc*2,ep,ez]);
-            translate([ep+sps/2-spc/2+spc/2, dco,0]) cylinder(r=rsty+epr, h=ez, $fn=4*5);
-        }
-        translate([ep+sps/2-spc/2+spc/2, dco,-1]) cylinder(r=rsty, h=ez+2, $fn=4*5);
-        // vis serrages
-        translate([ep+sps/2-spc/2+spc/2, dco,ez/2]) rotate([-90,0,45]) cylinder(r=1.5, h=rsty+epr+1);
-        translate([ep+sps/2-spc/2+spc/2, dco,ez/2]) rotate([-90,0,-45]) cylinder(r=1.5, h=rsty+epr+1);
-    }
-}
-
-module plaquevis(){
-	sps_z = 40;
-	bor = 4;
-	//
-	difference(){
-		cube([bor+rv+sps+rv+bor, bor+rv+sps_z+rv+bor, bor]);
-		
-		translate([bor+rv, bor+rv, -1]) cylinder(r=rv, h=bor+2);
-		translate([bor+rv+sps, bor+rv, -1]) cylinder(r=rv, h=bor+2);
-		translate([bor+rv+sps, bor+rv+sps_z, -1]) cylinder(r=rv, h=bor+2);
-		translate([bor+rv, bor+rv+sps_z, -1]) cylinder(r=rv, h=bor+2);
+		union(){
+			cylinder(r=rbig+epr, h=supz+epz);
+			
+		}
+		// ext
+		tub();
+		// centre
+		translate([0,0,-1]) cylinder(r=rbig-epr, h=supz+epz+2);
+		//
+		for(g=[0:3]){
+			rotate([0,0,120*g]) translate([0,rbig-rr-1, 0])  
+			translate([0,0,-1])  cylinder(r=rr+0.1, h=supz+1);
+		}
+		for(g=[0:3]){
+			rotate([0,0,120*g]) translate([0,rbig-rr-1, 0]) difference(){
+				translate([0,0,-1])  cylinder(r=rc+2, h=supz+epz+2);
+			}
+		}
 		
 	}
+	difference(){
+		union(){
+			for(g=[0:3]){
+						rotate([0,0,120*g]) translate([0,rbig-rr-1, 0]) difference(){
+							cylinder(r=rr+eprr, h=supz+epz);
+							translate([0,0,-1])  cylinder(r=rr+0.1, h=supz+epz+2);
+							translate([-0.5,-rr-eprr-1,-1])  cube([1, eprr+2, supz+epz+2]);
+						}
+			}
+		}
+		tub();
+	}
 }
 
-//translate([0,0,0]) stylo();
-//translate([0,30,0]) stylo();
-//plaquevis(); 
-translate([0,0,0]) colonnes();
-translate([0,40,0]) colonnes();
+module tub(){
+	j = 0.2;
+	difference(){
+		translate([0,0,-1]) cylinder(r=rbig+epr+1, h=supz+1);
+		translate([0,0,-1]) cylinder(r=rbig+j, h=supz+2);
+	}
+}
+
+module colo(){
+	epcolz = 10;
+	eprcol = 3.7;
+	//
+	for(g=[0:3]){
+		rotate([0,0,120*g]) translate([0,rbig-rr-1, 0]) difference(){
+			union(){
+				translate([0,0,0])  cylinder(r=rc+eprcol, h=epcolz);
+				// plot
+				rotate([0,0,-7])
+					translate([rc,-eprcol,0]) cube([eprcol+2, eprcol*2, epcolz]);
+			}
+			rotate([0,0,-7]){
+				translate([0,0,-1])  cylinder(r=rc+0.2, h=epcolz+2);
+				// fente
+				translate([2, -1, -1]) cube([eprcol*2, 2, epcolz+2]);
+				// vis serrages
+				translate([rc+2.5, eprcol*2, epcolz/2]) rotate([90,0,0]) cylinder(r=1.6, h=eprcol*4, $fn=9);
+				translate([rc+2.5, eprcol, epcolz/2]) rotate([-90,0,0]) cylinder(r=m3r+0.4, h=m3h+0.6, $fn=6);
+				translate([rc+2.5, -eprcol, epcolz/2]) rotate([90,0,0]) cylinder(r=m3r+0.4, h=m3h+0.6, $fn=6);
+			}
+				
+		}
+	}
+	//
+	difference(){
+		cylinder(r=rsty+eprcol, h=epcolz);
+		translate([0,0,-1]) cylinder(r=rsty, h=epcolz+2);
+		//
+		for(g=[0:3]){
+			rotate([0,0,120*g]) translate([0,rbig-rr-1, 0]){
+				rotate([0,0,-7]){
+					translate([rc+2.5, eprcol*2, epcolz/2]) rotate([90,0,0]) cylinder(r=1.6, h=eprcol*4+2, $fn=9);
+					//translate([rc+2.5, eprcol, epcolz/2]) rotate([-90,0,0]) cylinder(r=3.5, h=eprcol);
+					translate([rc+2.5, -eprcol, epcolz/2]) rotate([90,0,0]) cylinder(r=m3r+0.4, h=m3h+0.6, $fn=6);
+					translate([rc+2.5+2.5, -eprcol, epcolz/2]) rotate([90,0,0]) cylinder(r=m3r+0.4, h=m3h+0.6, $fn=6);
+				}
+			}
+		}
+		for(g=[0:3]){
+			rotate([0,0,120*g -10]) translate([0,0,epcolz/2]) rotate([90,0,0]) cylinder(r=1.5, h=rsty+eprcol+1, $fn=9);
+		}
+	}
+}
+
+rotate([180,0,0]) rouloum();
+
+
+//colo();
+//translate([0,0,11]) rouloum();
+
+//colo();
+//translate([0,40,0]) colo();
+
