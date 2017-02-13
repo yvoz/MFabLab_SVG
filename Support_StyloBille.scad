@@ -1,7 +1,7 @@
 
 $fn = 12;
 
-ep = 8; // epaisseur
+ep = 10; // epaisseur
 ez = 10; // epaisseur z
 epr = ep-3; // epaisseur cylindre
 
